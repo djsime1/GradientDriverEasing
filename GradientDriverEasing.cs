@@ -157,10 +157,10 @@ public class GradientDriverEasing : ResoniteMod
 
         // Third row
         var radio = ui.HorizontalLayout(32f);
-        var targetValues = radio.Slot.AttachComponent<ValueField<int>>();
+        var boolSwitcher = radio.Slot.AttachComponent<BooleanSwitcher>();
         ui.Text("Target field").HorizontalAlign.Value = TextHorizontalAlignment.Left;
-        ui.ValueRadio("Position", targetValues.Value, 0);
-        ui.ValueRadio("Value", targetValues.Value, 1);
+        ui.ValueRadio("Position", boolSwitcher.ActiveIndex, 0);
+        ui.ValueRadio("Value", boolSwitcher.ActiveIndex, 1);
         ui.NestOut();
 
         // Function buttons
@@ -196,10 +196,8 @@ public class GradientDriverEasing : ResoniteMod
         ui.NestOut();
         ui.NestOut();
 
-        var boolSwitcher = funcContainer.Slot.AttachComponent<BooleanSwitcher>();
         boolSwitcher.Targets.Add().Target = posButtons.Slot.ActiveSelf_Field;
         boolSwitcher.Targets.Add().Target = valButtons.Slot.ActiveSelf_Field;
-        boolSwitcher.ActiveIndex.DriveFrom(targetValues.Value);
         ui.Style.SupressLayoutElement = false;
 
         ui.Spacer(8f);
