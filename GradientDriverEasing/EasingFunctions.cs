@@ -57,6 +57,8 @@
 
 using Elements.Core;
 
+namespace GradientDriverEasing;
+
 public static class EasingFunction
 {
     public enum EaseType : byte

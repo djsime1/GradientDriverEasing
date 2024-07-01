@@ -1,25 +1,34 @@
-﻿using HarmonyLib;
-using ResoniteModLoader;
-using System;
-using System.Reflection;
+﻿using ResoniteModLoader;
 using FrooxEngine;
 using Elements.Core;
 using FrooxEngine.UIX;
-using System.Reflection.Emit;
-using CustomUILib;
 using Elements.Assets;
 
 namespace GradientDriverEasing;
 
 public class GradientDriverEasing : ResoniteMod
 {
-    public override string Name => "GradientDriverEasing";
-    public override string Author => "djsime1";
-    public override string Version => "1.0.0";
+    public override string Name => "Gradient Driver Easing";
+    public override string Author => "djsime1 / Zenuru";
+    public override string Version => "1.1.0";
     public override string Link => "https://github.com/djsime1/GradientDriverEasing";
+
+    public static ModConfiguration? Config;
+
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<bool> useUnclampedLerp = new("UseUnclampedLerp", "Use unclamped interpolation calculations", () => true);
+
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<bool> lerpColorByHSV = new("LerpColorByHSV", "Interpolate colors by HSV values instead of RGB", () => false);
+
+    public static bool UseUnclampedLerp => Config!.GetValue(useUnclampedLerp);
+    public static bool LerpColorByHSV => Config!.GetValue(lerpColorByHSV);
 
     public override void OnEngineInit()
     {
+        Config = GetConfiguration();
+        Config?.Save(true);
+
         CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<bool>>(BuildInspectorUI);
         CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<byte>>(BuildInspectorUI);
         CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ushort>>(BuildInspectorUI);
@@ -78,15 +87,18 @@ public class GradientDriverEasing : ResoniteMod
         var minF = ui.HorizontalElementWithLabel("Min position", 0.66f, () => ui.FloatField());
         var maxF = ui.HorizontalElementWithLabel("Max position", 0.66f, () => ui.FloatField());
         ui.HorizontalLayout(4f);
-        ui.Button("01").LocalPressed += (_, _) => {
+        ui.Button("01").LocalPressed += (_, _) =>
+        {
             minF.ParsedValue.Value = 0f;
             maxF.ParsedValue.Value = 1f;
         };
-        ui.Button("Auto").LocalPressed += (_, _) => {
+        ui.Button("Auto").LocalPressed += (_, _) =>
+        {
             minF.ParsedValue.Value = instance.Points.Min((p) => p.Position.Value);
             maxF.ParsedValue.Value = instance.Points.Max((p) => p.Position.Value);
         };
-        ui.Button("Swap").LocalPressed += (_, _) => {
+        ui.Button("Swap").LocalPressed += (_, _) =>
+        {
             var oldMin = minF.ParsedValue.Value;
             var oldMax = maxF.ParsedValue.Value;
             minF.ParsedValue.Value = oldMax;
@@ -108,7 +120,8 @@ public class GradientDriverEasing : ResoniteMod
         // Second row
         ui.HorizontalLayout(4f);
         var temp = new List<GradientPoint<T>>();
-        ui.Button("Sort position").LocalPressed += (_, _) => {
+        ui.Button("Sort position").LocalPressed += (_, _) =>
+        {
             temp.Clear();
             foreach (var p in instance.Points)
             {
@@ -119,16 +132,18 @@ public class GradientDriverEasing : ResoniteMod
             }
             temp.Sort((a, b) => a.Position.CompareTo(b.Position));
             instance.Points.Clear();
-            temp.ForEach((p) => instance.AddPoint(p.Position, p.Value));
+            temp.ForEach((p) => instance.AddPoint(p.Position, p.Value!));
         };
-        ui.Button("-Position").LocalPressed += (_, _) => {
+        ui.Button("-Position").LocalPressed += (_, _) =>
+        {
             var max = instance.Points.Max((p) => p.Position.Value);
             foreach (var p in instance.Points)
             {
                 p.Position.Value = max - p.Position.Value;
             }
         };
-        ui.Button("Subdivide").LocalPressed += (_, _) => {
+        ui.Button("Subdivide").LocalPressed += (_, _) =>
+        {
             if (instance.Points.Count < 2) { return; }
             temp.Clear();
             for (int i = 0; i < instance.Points.Count - 1; i++)
@@ -137,7 +152,7 @@ public class GradientDriverEasing : ResoniteMod
                 var p2 = instance.Points[i + 1];
                 var p3 = new GradientPoint<T>();
                 p3.Position = MathX.Lerp(p1.Position.Value, p2.Position.Value, 0.5f);
-                p3.Value = Coder<T>.Lerp(p1.Value.Value, p2.Value.Value, 0.5f);
+                p3.Value = ConfiguredLerp(p1.Value.Value, p2.Value.Value, 0.5f);
                 temp.Add(p3);
             }
             foreach (var p in instance.Points)
@@ -149,7 +164,7 @@ public class GradientDriverEasing : ResoniteMod
             }
             temp.Sort((a, b) => a.Position.CompareTo(b.Position));
             instance.Points.Clear();
-            temp.ForEach((p) => instance.AddPoint(p.Position, p.Value));
+            temp.ForEach((p) => instance.AddPoint(p.Position, p.Value!));
         };
         ui.NestOut();
 
@@ -203,40 +218,84 @@ public class GradientDriverEasing : ResoniteMod
         ui.Spacer(8f);
     }
 
-    private static Button CreatePositionEasingButton<T>(ValueGradientDriver<T> instance, UIBuilder ui, EasingFunction.EaseType easing, Sync<float> min, Sync<float> max) {
-            string fName = Enum.GetName(typeof(EasingFunction.EaseType), easing);
-            EasingFunction.Function fFunc = EasingFunction.GetEasingFunction(easing);
-            Button btn = ui.Button(fName);
-            btn.LocalPressed += (_, _) => {
-                int pCount = instance.Points.Count;
-                for (int i = 0; i < pCount; i++)
-                {
-                    instance.Points[i].Position.Value = fFunc(min.Value, max.Value, (float)i/(pCount-1));
-                }
-            };
-            return btn;
-    }
-
-    private static Button CreateValueEasingButton<T>(ValueGradientDriver<T> instance, UIBuilder ui, EasingFunction.EaseType easing, Sync<float> min, Sync<float> max) {
-            string fName = Enum.GetName(typeof(EasingFunction.EaseType), easing);
-            EasingFunction.Function fFunc = EasingFunction.GetEasingFunction(easing);
-            Button btn = ui.Button(fName);
-            btn.LocalPressed += (_, _) => {
-                int pCount = instance.Points.Count;
-                for (int i = 0; i < pCount; i++)
-                {
-                    instance.Points[i].Value.Value = Coder<T>.Lerp(
-                        instance.Points.First().Value.Value,
-                        instance.Points.Last().Value.Value,
-                        fFunc(min.Value, max.Value, instance.Points[i].Position.Value)
-                    );
-                }
-            };
-            return btn;
-    }
-
-    private static EasingFunction.EaseType[] PositionEasings = new EasingFunction.EaseType[]
+    private static Button CreatePositionEasingButton<T>(ValueGradientDriver<T> instance, UIBuilder ui, EasingFunction.EaseType easing, Sync<float> min, Sync<float> max)
     {
+        string fName = Enum.GetName(typeof(EasingFunction.EaseType), easing);
+        EasingFunction.Function fFunc = EasingFunction.GetEasingFunction(easing);
+        Button btn = ui.Button(fName);
+        btn.LocalPressed += (_, _) =>
+        {
+            int pCount = instance.Points.Count;
+            for (int i = 0; i < pCount; i++)
+            {
+                instance.Points[i].Position.Value = fFunc(min.Value, max.Value, (float)i / (pCount - 1));
+            }
+        };
+        return btn;
+    }
+
+    private static Button CreateValueEasingButton<T>(ValueGradientDriver<T> instance, UIBuilder ui, EasingFunction.EaseType easing, Sync<float> min, Sync<float> max)
+    {
+        string fName = Enum.GetName(typeof(EasingFunction.EaseType), easing);
+        EasingFunction.Function fFunc = EasingFunction.GetEasingFunction(easing);
+        Button btn = ui.Button(fName);
+        btn.LocalPressed += (_, _) =>
+        {
+            int pCount = instance.Points.Count;
+            for (int i = 0; i < pCount; i++)
+            {
+                instance.Points[i].Value.Value = ConfiguredLerp(
+                    instance.Points.First().Value.Value,
+                    instance.Points.Last().Value.Value,
+                    fFunc(min.Value, max.Value, instance.Points[i].Position.Value)
+                );
+            }
+        };
+        return btn;
+    }
+
+    private static T ConfiguredLerp<T>(T a, T b, float ratio)
+    {
+        if ((typeof(T) == typeof(colorX) || typeof(T) == typeof(color)) && LerpColorByHSV)
+        {
+            if (a is colorX colorXa && b is colorX colorXb)
+            {
+                return (T)Convert.ChangeType(HSVLerp(colorXa, colorXb, ratio), typeof(T));
+            }
+            else if (a is color colora && b is color colorb)
+            {
+                return (T)Convert.ChangeType(HSVLerp(colora, colorb, ratio), typeof(T));
+            }
+        }
+
+        if (UseUnclampedLerp)
+        {
+            return Coder<T>.LerpUnclamped(a, b, ratio);
+        }
+        else
+        {
+            return Coder<T>.Lerp(a, b, ratio);
+        }
+    }
+
+    private static color HSVLerp(color a, color b, float ratio)
+    {
+        var hsva = new ColorHSV(a);
+        var hsvb = new ColorHSV(b);
+        var floata = new float4(hsva.H, hsva.S, hsva.V, hsva.A);
+        var floatb = new float4(hsvb.H, hsvb.S, hsvb.V, hsvb.A);
+        var floatc = ConfiguredLerp(floata, floatb, ratio);
+        var hsvc = new ColorHSV(floatc.X, floatc.Y, floatc.Z, floatc.W);
+        return hsvc.ToRGB();
+    }
+
+    private static colorX HSVLerp(colorX a, colorX b, float ratio)
+    {
+        return new colorX(HSVLerp((color)a, (color)b, ratio)).SetProfile(a.Profile);
+    }
+
+    private static EasingFunction.EaseType[] PositionEasings =
+    [
         EasingFunction.EaseType.EaseInQuad,
         EasingFunction.EaseType.EaseOutQuad,
         EasingFunction.EaseType.EaseInOutQuad,
@@ -258,10 +317,10 @@ public class GradientDriverEasing : ResoniteMod
         EasingFunction.EaseType.EaseInCirc,
         EasingFunction.EaseType.EaseOutCirc,
         EasingFunction.EaseType.EaseInOutCirc
-    };
+    ];
 
-    private static EasingFunction.EaseType[] ValueEasings = new EasingFunction.EaseType[]
-    {
+    private static EasingFunction.EaseType[] ValueEasings =
+    [
         EasingFunction.EaseType.EaseInQuad,
         EasingFunction.EaseType.EaseOutQuad,
         EasingFunction.EaseType.EaseInOutQuad,
@@ -292,11 +351,11 @@ public class GradientDriverEasing : ResoniteMod
         EasingFunction.EaseType.EaseInElastic,
         EasingFunction.EaseType.EaseOutElastic,
         EasingFunction.EaseType.EaseInOutElastic,
-    };
+    ];
 }
 
 class GradientPoint<T>
 {
     public float Position;
-    public T Value;
+    public T? Value;
 }
