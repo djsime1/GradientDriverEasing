@@ -8,7 +8,7 @@ namespace GradientDriverEasing;
 
 public class GradientDriverEasing : ResoniteMod
 {
-    public override string Name => "Gradient Driver Easing";
+    public override string Name => "GradientDriverEasing";
     public override string Author => "djsime1 / Zenuru";
     public override string Version => "1.1.0";
     public override string Link => "https://github.com/djsime1/GradientDriverEasing";
@@ -278,6 +278,7 @@ public class GradientDriverEasing : ResoniteMod
         }
     }
 
+    // TODO: underflow hue if delta is > 180
     private static color HSVLerp(color a, color b, float ratio)
     {
         var hsva = new ColorHSV(a);

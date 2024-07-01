@@ -2,7 +2,7 @@
 
   <PropertyGroup> 
     <Authors>djsime1 / Zenuru</Authors>
-    <Product>Gradient Driver Easing</Product>
+    <Product>GradientDriverEasing</Product>
     <Description>Adds easing function presets to ValueGradientDriver components</Description>
     <Version>1.1.0</Version>
     <Copyright>$(Authors)</Copyright>

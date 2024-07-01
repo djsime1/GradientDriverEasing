@@ -8,7 +8,7 @@ A [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoade
 
 ## Installation
 1. Install [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader).
-2. Place [CustomUILib.dll](https://github.com/djsime1/GradientDriverEasing/releases/latest/download/CustomUILib.dll) and [GradientDriverEasing.dll](https://github.com/djsime1/GradientDriverEasing/releases/latest/download/GradientDriverEasing.dll) into your `rml_mods` folder. This folder should be at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` for a default install. You can create it if it's missing, or if you launch the game once with ResoniteModLoader installed it will create this folder for you.
+2. Place [CustomUILib.dll](https://github.com/art0007i/CustomUILib/releases/latest/download/CustomUILib.dll) and [GradientDriverEasing.dll](https://github.com/djsime1/GradientDriverEasing/releases/latest/download/GradientDriverEasing.dll) into your `rml_mods` folder. This folder should be at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` for a default install. You can create it if it's missing, or if you launch the game once with ResoniteModLoader installed it will create this folder for you.
 3. Start the game and browse to or create a ValueGradeintDriver component using the Inspector. Two new sections should appear on the component.
 4. Consult the guide below to learn how the mod works.
 
@@ -43,9 +43,11 @@ The second row contains buttons to manipulate the Points list.
 
 The rest of the buttons will apply the corresponding [easing function](https://easings.net/) to all the Points Positions or Values, depending on your selection above.
 
+When working with `color` or `colorX`, there is a [mod configuration option](https://github.com/badhaloninja/ResoniteModSettings) to interpolate the colors by their HSV values instead of RGB, though it is disabled by default.
+
 ## Additional notes
 
 - Back, Elastic, Bounce, and Spring easing presets are only available when `Target field` is set to <kbd>Value</kbd>.
-- Back, Elastic, and Spring easing presets are clamped to the largest and smallest value in the Points list. Calculating interpolations beyond these values may be implemented in a future update.
+- Back, Elastic, and Spring easing presets should ideally be used with the unclamped interpolation calculations setting enabled, which is true by default.
 - When animating the ValueGradientDriver, you probably want to use [ConstantLerpValue](https://wiki.resonite.com/Component:ConstantLerpValue) instead of [SmoothValue](https://wiki.resonite.com/Component:SmoothValue); Otherwise the target value will be double-smoothed.
 - Thank you [cjddmut](https://github.com/cjddmut) for the [EasingFunctions.cs](https://gist.github.com/cjddmut/d789b9eb78216998e95c) code!
