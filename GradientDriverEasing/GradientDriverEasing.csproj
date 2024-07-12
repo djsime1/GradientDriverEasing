@@ -4,7 +4,7 @@
     <Authors>djsime1 / Zenuru</Authors>
     <Product>GradientDriverEasing</Product>
     <Description>Adds easing function presets to ValueGradientDriver components</Description>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Copyright>$(Authors)</Copyright>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <AssemblyTitle>$(Product)</AssemblyTitle>
