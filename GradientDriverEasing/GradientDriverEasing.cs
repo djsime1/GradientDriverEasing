@@ -230,10 +230,7 @@ public class GradientDriverEasing : ResoniteMod
         btn.LocalPressed += (_, _) =>
         {
             int pCount = instance.Points.Count;
-            for (int i = 0; i < pCount; i++)
-            {
-                instance.Points[i].Position.Value = fFunc(min.Value, max.Value, (float)i / (pCount - 1));
-            }
+            for (int i = 0; i < pCount; i++) instance.Points[i].Position.Value = fFunc(min.Value, max.Value, (float)i / (pCount - 1));
         };
         return btn;
     }
@@ -262,14 +259,8 @@ public class GradientDriverEasing : ResoniteMod
     {
         if (Config_LerpColorByHSV && (typeof(T) == typeof(colorX) || typeof(T) == typeof(color)))
         {
-            if (a is colorX colorXa && b is colorX colorXb)
-            {
-                return (T)(object)HSVLerp(colorXa, colorXb, ratio);
-            }
-            else if (a is color colora && b is color colorb)
-            {
-                return (T)(object)HSVLerp(colora, colorb, ratio);
-            }
+            if (a is colorX colorXa && b is colorX colorXb) return (T)(object)HSVLerp(colorXa, colorXb, ratio);
+            else if (a is color colora && b is color colorb) return (T)(object)HSVLerp(colora, colorb, ratio);
         }
 
         return Config_UseUnclampedLerp ? Coder<T>.LerpUnclamped(a, b, ratio) : Coder<T>.Lerp(a, b, ratio);
@@ -286,10 +277,7 @@ public class GradientDriverEasing : ResoniteMod
         return hsvc.ToRGB();
     }
 
-    private static colorX HSVLerp(colorX a, colorX b, float ratio)
-    {
-        return new colorX(HSVLerp((color)a, (color)b, ratio)).SetProfile(a.Profile);
-    }
+    private static colorX HSVLerp(colorX a, colorX b, float ratio) => new colorX(HSVLerp((color)a, (color)b, ratio)).SetProfile(a.Profile);
 
     private static bool IsFakeLerpType<T>() => FakeLerpTypes.Contains(typeof(T));
 
