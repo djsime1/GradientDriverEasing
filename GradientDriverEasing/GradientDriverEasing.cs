@@ -37,54 +37,7 @@ public class GradientDriverEasing : ResoniteMod
 
         try
         {
-            // Fake lerpers: bool, char, string, bool2, bool3, bool4
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<bool>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<byte>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ushort>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<uint>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ulong>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<sbyte>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<short>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<int>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<long>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<decimal>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<char>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<string>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<bool2>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<uint2>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ulong2>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<int2>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<long2>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float2>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double2>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<bool3>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<uint3>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ulong3>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<int3>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<long3>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float3>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double3>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<bool4>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<uint4>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ulong4>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<int4>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<long4>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float4>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double4>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float2x2>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double2x2>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float3x3>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double3x3>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float4x4>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double4x4>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<floatQ>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<doubleQ>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<DateTime>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<TimeSpan>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<color>>(BuildInspectorUI);
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<colorX>>(BuildInspectorUI);
+            RegisterCustomInspectorUI();
         }
         catch (Exception ex)
         {
@@ -96,6 +49,7 @@ public class GradientDriverEasing : ResoniteMod
             Full exception:
             {ex}
             """;
+            Error(msg);
             Engine.Current.RunPostInit(() =>
             {
                 NoticeHelper.DisplayNotice(Userspace.UserspaceWorld, "GradentDriverEasing error", msg, OfficialAssets.Graphics.Icons.General.BoxCross);
@@ -103,11 +57,70 @@ public class GradientDriverEasing : ResoniteMod
         }
     }
 
+    private static void RegisterCustomInspectorUI()
+    {
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<bool>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<byte>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ushort>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<uint>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ulong>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<sbyte>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<short>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<int>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<long>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<decimal>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<char>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<string>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<bool2>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<uint2>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ulong2>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<int2>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<long2>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float2>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double2>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<bool3>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<uint3>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ulong3>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<int3>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<long3>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float3>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double3>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<bool4>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<uint4>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ulong4>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<int4>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<long4>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float4>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double4>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float2x2>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double2x2>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float3x3>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double3x3>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float4x4>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double4x4>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<floatQ>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<doubleQ>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<DateTime>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<TimeSpan>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<color>>(BuildInspectorUI);
+        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<colorX>>(BuildInspectorUI);
+    }
+
+    private static void UISection(UIBuilder ui, string label) {
+            ui.Style.MinHeight = 24f;
+            ui.Text(label).Color.Value = RadiantUI_Constants.Hero.CYAN;
+            ui.Style.MinHeight = 2f;
+            ui.Image(RadiantUI_Constants.Hero.CYAN);
+            ui.Style.MinHeight = 24f;
+    }
+
     private static void BuildInspectorUI<T>(ValueGradientDriver<T> instance, UIBuilder ui)
     {
         if (!Config_Enable) return;
 
-        ui.Text("--- Easing utilities ---");
+        UISection(ui, "Easing utilities");
 
         // First row
         ui.HorizontalLayout(4f);
@@ -178,7 +191,7 @@ public class GradientDriverEasing : ResoniteMod
         };
         ui.NestOut();
 
-        ui.Text("--- Easing functions ---");
+        UISection(ui, "Easing functions");
 
         // Third row
         var radio = ui.HorizontalLayout(32f);
