@@ -1,6 +1,8 @@
-﻿using Elements.Core;
+﻿using System.Reflection;
+using Elements.Core;
 using FrooxEngine;
 using FrooxEngine.UIX;
+using HarmonyLib;
 using ResoniteModLoader;
 
 namespace GradientDriverEasing;
@@ -9,106 +11,57 @@ public class GradientDriverEasing : ResoniteMod
 {
     public override string Name => "GradientDriverEasing";
     public override string Author => "djsime1 / Zenuru";
-    public override string Version => "1.2.0";
+    public override string Version => "1.3.0";
     public override string Link => "https://github.com/djsime1/GradientDriverEasing";
 
-    public static ModConfiguration? Config;
+    public static ModConfiguration Config;
 
     [AutoRegisterConfigKey]
     private static readonly ModConfigurationKey<bool> enable = new("Enable", "Enable/disable the mod", () => true);
-    public static bool Config_Enable => Config!.GetValue(enable);
+    public static bool Config_Enable => Config.GetValue(enable);
 
     [AutoRegisterConfigKey]
     private static readonly ModConfigurationKey<bool> useUnclampedLerp = new("UseUnclampedLerp", "Use unclamped interpolation calculations", () => true);
-    public static bool Config_UseUnclampedLerp => Config!.GetValue(useUnclampedLerp);
+    public static bool Config_UseUnclampedLerp => Config.GetValue(useUnclampedLerp);
 
     [AutoRegisterConfigKey]
     private static readonly ModConfigurationKey<bool> lerpColorByHSV = new("LerpColorByHSV", "Interpolate colors by HSV values instead of RGB", () => false);
-    public static bool Config_LerpColorByHSV => Config!.GetValue(lerpColorByHSV);
+    public static bool Config_LerpColorByHSV => Config.GetValue(lerpColorByHSV);
 
-    // [AutoRegisterConfigKey]
-    // private static readonly ModConfigurationKey<bool> collapseInspectorSections = new("CollapseInspectorSections", "Collapse injected inspector sections by default", () => false);
-    // public static bool Config_CollapseInspectorSections => Config!.GetValue(collapseInspectorSections);
+    [AutoRegisterConfigKey]
+    private static readonly ModConfigurationKey<bool> collapseInspectorSections = new("CollapseInspectorSections", "Collapse injected inspector sections by default", () => false);
+    public static bool Config_CollapseInspectorSections => Config.GetValue(collapseInspectorSections);
 
     public override void OnEngineInit()
     {
-        Config = GetConfiguration();
-        Config?.Save(true);
-
-        try
-        {
-            RegisterCustomInspectorUI();
-        }
-        catch (Exception ex)
-        {
-            var msg = $"""
-            GradientDriverEasing failed to initialize!
-            Please ensure CustomUILib is installed, or open a issue on Github if it already is.
-            Here's what went wrong: "{ex.Message}"
-
-            Full exception:
-            {ex}
-            """;
-            Error(msg);
-            Engine.Current.RunPostInit(() =>
-            {
-                NoticeHelper.DisplayNotice(Userspace.UserspaceWorld, "GradentDriverEasing error", msg, OfficialAssets.Graphics.Icons.General.BoxCross);
-            });
-        }
+        Harmony harmony = new("je.dj.GradientDriverEasing");
+        Config = GetConfiguration()!;
+        Config.Save(true);
+        harmony.PatchAll();
     }
+    
+    static readonly MethodInfo BuildInspectorUIMethod = AccessTools.DeclaredMethod(typeof(GradientDriverEasing), nameof(BuildInspectorUI));
 
-    private static void RegisterCustomInspectorUI()
+    [HarmonyPatch(typeof(WorkerInspector))]
+    class GradientDriverEasingPatches
     {
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<bool>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<byte>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ushort>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<uint>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ulong>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<sbyte>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<short>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<int>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<long>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<decimal>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<char>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<string>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<bool2>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<uint2>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ulong2>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<int2>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<long2>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float2>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double2>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<bool3>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<uint3>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ulong3>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<int3>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<long3>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float3>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double3>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<bool4>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<uint4>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<ulong4>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<int4>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<long4>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float4>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double4>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float2x2>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double2x2>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float3x3>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double3x3>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<float4x4>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<double4x4>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<floatQ>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<doubleQ>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<DateTime>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<TimeSpan>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<color>>(BuildInspectorUI);
-        CustomUILib.CustomUILib.AddCustomInspectorAfter<ValueGradientDriver<colorX>>(BuildInspectorUI);
+        [HarmonyPatch(nameof(WorkerInspector.BuildInspectorUI))]
+        [HarmonyPostfix]
+        public static void WorkerInspector_BuildInspectorUI_Postfix(Worker worker, UIBuilder ui)
+        {
+            var workerType = worker.GetType();
+            if (!Config_Enable ||
+                !workerType.IsConstructedGenericType ||
+                workerType.GetGenericTypeDefinition() != typeof(ValueGradientDriver<>)
+            ) return;
+
+            var genericType = workerType.GetGenericArguments()[0];
+            BuildInspectorUIMethod.MakeGenericMethod(genericType).Invoke(null, [worker, ui]);
+            // ValueGradientDriver.IsValidGenericType constrains to lerp-able types already
+        }
     }
 
-    private static void UISection(UIBuilder ui, string label) {
+    internal static void UISection(UIBuilder ui, string label) {
             ui.Style.MinHeight = 24f;
             ui.Text(label).Color.Value = RadiantUI_Constants.Hero.CYAN;
             ui.Style.MinHeight = 2f;
@@ -116,10 +69,23 @@ public class GradientDriverEasing : ResoniteMod
             ui.Style.MinHeight = 24f;
     }
 
-    private static void BuildInspectorUI<T>(ValueGradientDriver<T> instance, UIBuilder ui)
+    internal static void BuildInspectorUI<T>(ValueGradientDriver<T> instance, UIBuilder ui)
     {
-        if (!Config_Enable) return;
-
+        if (Config_CollapseInspectorSections)
+        {
+            ui.Style.SupressLayoutElement = true;
+            var header = ui.VerticalLayout(6f);
+            ui.Style.SupressLayoutElement = false;
+            UISection(ui, "Gradient Driver Easing (Mod)");
+            ui.Button("Show easing utilities and functions").SetupToggle(header.Slot.ActiveSelf_Field, null, null);
+            
+            ui.NestOut();
+            ui.Style.SupressLayoutElement = true;
+            var collapse = ui.VerticalLayout(6f);
+            ui.Style.SupressLayoutElement = false;
+            collapse.Slot.ActiveSelf_Field.DriveInverted(header.Slot.ActiveSelf_Field);
+        }
+        
         UISection(ui, "Easing utilities");
 
         // First row
@@ -232,12 +198,17 @@ public class GradientDriverEasing : ResoniteMod
         boolSwitcher.Targets.Add().Target = valButtons.Slot.ActiveSelf_Field;
         ui.Style.SupressLayoutElement = false;
 
+        if (Config_CollapseInspectorSections)
+        {
+            ui.NestOut();
+        }
+
         ui.Spacer(8f);
     }
 
-    private static Button CreatePositionEasingButton<T>(ValueGradientDriver<T> instance, UIBuilder ui, EasingFunction.EaseType easing, Sync<float> min, Sync<float> max)
+    internal static Button CreatePositionEasingButton<T>(ValueGradientDriver<T> instance, UIBuilder ui, EasingFunction.EaseType easing, Sync<float> min, Sync<float> max)
     {
-        string fName = Enum.GetName(typeof(EasingFunction.EaseType), easing);
+        string fName = Enum.GetName(easing)!;
         EasingFunction.Function fFunc = EasingFunction.GetEasingFunction(easing);
         Button btn = ui.Button(fName);
         btn.LocalPressed += (_, _) =>
@@ -248,9 +219,9 @@ public class GradientDriverEasing : ResoniteMod
         return btn;
     }
 
-    private static Button CreateValueEasingButton<T>(ValueGradientDriver<T> instance, UIBuilder ui, EasingFunction.EaseType easing, Sync<float> min, Sync<float> max)
+    internal static Button CreateValueEasingButton<T>(ValueGradientDriver<T> instance, UIBuilder ui, EasingFunction.EaseType easing, Sync<float> min, Sync<float> max)
     {
-        string fName = Enum.GetName(typeof(EasingFunction.EaseType), easing);
+        string fName = Enum.GetName(easing)!;
         EasingFunction.Function fFunc = EasingFunction.GetEasingFunction(easing);
         Button btn = ui.Button(fName);
         btn.LocalPressed += (_, _) =>
@@ -259,8 +230,8 @@ public class GradientDriverEasing : ResoniteMod
             for (int i = 0; i < pCount; i++)
             {
                 instance.Points[i].Value.Value = ConfiguredLerp(
-                    instance.Points.First().Value.Value,
-                    instance.Points.Last().Value.Value,
+                    instance.Points[0].Value.Value,
+                    instance.Points[^1].Value.Value,
                     fFunc(min.Value, max.Value, instance.Points[i].Position.Value)
                 );
             }
@@ -268,18 +239,23 @@ public class GradientDriverEasing : ResoniteMod
         return btn;
     }
 
-    private static T ConfiguredLerp<T>(T a, T b, float ratio)
+    internal static T ConfiguredLerp<T>(T a, T b, float ratio)
     {
         if (Config_LerpColorByHSV && (typeof(T) == typeof(colorX) || typeof(T) == typeof(color)))
         {
-            if (a is colorX colorXa && b is colorX colorXb) return (T)(object)HSVLerp(colorXa, colorXb, ratio);
-            else if (a is color colora && b is color colorb) return (T)(object)HSVLerp(colora, colorb, ratio);
+            switch (a)
+            {
+                case colorX colorXa when b is colorX colorXb:
+                    return (T)(object)HSVLerp(colorXa, colorXb, ratio);
+                case color colora when b is color colorb:
+                    return (T)(object)HSVLerp(colora, colorb, ratio);
+            }
         }
 
         return Config_UseUnclampedLerp ? Coder<T>.LerpUnclamped(a, b, ratio) : Coder<T>.Lerp(a, b, ratio);
     }
 
-    private static color HSVLerp(color a, color b, float ratio)
+    internal static color HSVLerp(color a, color b, float ratio)
     {
         var hsva = new ColorHSV(a);
         var hsvb = new ColorHSV(b);
@@ -290,11 +266,11 @@ public class GradientDriverEasing : ResoniteMod
         return hsvc.ToRGB();
     }
 
-    private static colorX HSVLerp(colorX a, colorX b, float ratio) => new colorX(HSVLerp((color)a, (color)b, ratio)).SetProfile(a.Profile);
+    internal static colorX HSVLerp(colorX a, colorX b, float ratio) => new colorX(HSVLerp((color)a, (color)b, ratio)).SetProfile(a.Profile);
 
-    private static bool IsFakeLerpType<T>() => FakeLerpTypes.Contains(typeof(T));
+    internal static bool IsFakeLerpType<T>() => FakeLerpTypes.Contains(typeof(T));
 
-    private static Type[] FakeLerpTypes =
+    internal static Type[] FakeLerpTypes =
     [
         typeof(bool),
         typeof(char),
@@ -304,7 +280,7 @@ public class GradientDriverEasing : ResoniteMod
         typeof(bool4)
     ];
 
-    private static EasingFunction.EaseType[] PositionEasings =
+    internal static EasingFunction.EaseType[] PositionEasings =
     [
         EasingFunction.EaseType.EaseInQuad,
         EasingFunction.EaseType.EaseOutQuad,
@@ -329,7 +305,7 @@ public class GradientDriverEasing : ResoniteMod
         EasingFunction.EaseType.EaseInOutCirc
     ];
 
-    private static EasingFunction.EaseType[] ValueEasings =
+    internal static EasingFunction.EaseType[] ValueEasings =
     [
         EasingFunction.EaseType.EaseInQuad,
         EasingFunction.EaseType.EaseOutQuad,

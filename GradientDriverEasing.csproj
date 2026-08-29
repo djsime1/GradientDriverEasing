@@ -4,44 +4,18 @@
     <Authors>djsime1 / Zenuru</Authors>
     <Product>GradientDriverEasing</Product>
     <Description>Adds easing function presets to ValueGradientDriver components</Description>
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     <Copyright>$(Authors)</Copyright>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <AssemblyTitle>$(Product)</AssemblyTitle>
+    <CopyToMods Condition="'$(CopyToMods)'==''">true</CopyToMods>
   </PropertyGroup>
 
   <PropertyGroup> 
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{62880F0B-2A65-4D4E-97AF-FD6474435594}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GradientDriverEasing</RootNamespace>
-    <AssemblyName>GradientDriverEasing</AssemblyName>
-    <FileAlignment>512</FileAlignment>
-    <BuildProjectReferences>false</BuildProjectReferences>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
   <!--This will test for the default Steam installation paths for Resonite on Windows and Linux.-->
@@ -73,15 +47,10 @@
     <Reference Include="Renderite.Shared">
       <HintPath>$(ResonitePath)Renderite.Shared.dll</HintPath>
     </Reference>
-    <Reference Include="CustomUILib">
-      <HintPath Condition="Exists('$(ResonitePath)rml_mods\CustomUILib.dll')">$(ResonitePath)rml_mods\CustomUILib.dll</HintPath>
-      <HintPath Condition="Exists('$(ResonitePath)rml_libs\CustomUILib.dll')">$(ResonitePath)rml_libs\CustomUILib.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(CopyToMods)'=='true'">
     <Copy SourceFiles="$(OutDir)$(TargetFileName)" DestinationFolder="$(ResonitePath)rml_mods" />
     <Message Text="Copied $(TargetFileName) to $(ResonitePath)rml_mods" Importance="high" />
-    <!--Exec Command="C:\Program Files (x86)\Steam\steamapps\common\Resonite\Resonite.exe -Screen -screen-fullscreen 1 -DontAutoOpenCloudHome -CachePath C:\Resonite\Cache -DataPath C:\Resonite\Data -CTAATemporalEdgePower 1.0 -CTAASharpnessEnabled False -CTAAAdaptiveSharpness 0.4 -LoadAssembly Libraries\ResoniteModLoader.dll" /-->
   </Target>
 </Project>
